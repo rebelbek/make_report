@@ -19,7 +19,7 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-class RequestReportMaker:
+class ReportMaker:
     """
     Класс формирует и печатает отчет из лог-файлов.
     Принимает аргументы:
@@ -123,4 +123,4 @@ class RequestReportMaker:
 
 if __name__ == '__main__':
     arguments = get_args()
-    RequestReportMaker(arguments.paths, log_levels, arguments.report).print_report()
+    ReportMaker(arguments.paths, log_levels, arguments.report).print_report()
