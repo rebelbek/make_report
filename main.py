@@ -5,7 +5,7 @@ log_levels: tuple = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
 
 
 def get_args() -> argparse.Namespace:
-    """Получает аргументы из командной строки"""
+    """Функция получает аргументы из командной строки"""
     parser = argparse.ArgumentParser('Формирует отчет из переданных логов '
                                      'и выводит в консоль')
     parser.add_argument('paths',
@@ -33,10 +33,10 @@ class ReportMaker:
                  report_name: str = None,
                  module_name: str = 'django.request'
                  ):
-        self.paths: list = paths
+        self.paths: list[str] = paths
         self.report_name: str = report_name
-        self.log_levels: tuple = levels
-        self.module_name = module_name
+        self.log_levels: tuple[str] = levels
+        self.module_name: str = module_name
 
     def __str__(self):
         return f'Reports for logs in {self.module_name}, paths to file: {', '.join([path for path in self.paths])}'
@@ -54,37 +54,38 @@ class ReportMaker:
                 raise TypeError(f'Неверный формат файла - {path}, должен быть ".log"')
         self._paths = value
 
-    def filter_request_line(self, line: str) -> list[str]:
+    @staticmethod
+    def filter_request_line(line: str, levels: tuple) -> list[str]:
         """Получает необходимые значения из одной записи для request"""
-        result: list = []
+        result: list[str] = []
         for item in line.split():
-            if item in self.log_levels:
+            if item in levels:
                 result.append(item)
             if item.startswith('/'):
                 result.append(item)
                 continue
         return result
 
-    def filter_log(self) -> list[str]:
+    def filter_logs(self) -> list[list[str]]:
         """Получает все записи логов из переданных файлов и фильтрует необходимые данные"""
-        result_list: list = []
+        result: list[list[str]] = []
         for path in self.paths:
             with open(f'{path}', 'r') as f:
                 for line in f.readlines():
                     if self.module_name in line:
                         if self.module_name == 'django.request':
-                            result_list.append(self.filter_request_line(line))
+                            result.append(self.filter_request_line(line, self.log_levels))
                         else:
                             # в случае добавления метода для других модулей
                             pass
-        return result_list
+        return result
 
-    def make_dict(self) -> tuple[dict[str, dict[str, int]], dict, int]:
-        """Создает словарь из отфильтрованных логов"""
-        log_dict: dict = {}
-        level_count: dict = {level: 0 for level in self.log_levels}
+    def make_dict(self) -> tuple[dict[str, dict[str, int]], dict[str, int], int]:
+        """Создает словарь из отфильтрованных логов и подсчитывает количество запросов"""
+        log_dict: dict[str, dict[str, int]] = {}
+        level_count: dict[str, int] = {level: 0 for level in self.log_levels}
         request_count: int = 0
-        for item in self.filter_log():
+        for item in self.filter_logs():
             key = item[1]
             level = item[0]
             level_count[level] += 1
@@ -124,3 +125,4 @@ class ReportMaker:
 if __name__ == '__main__':
     arguments = get_args()
     ReportMaker(arguments.paths, log_levels, arguments.report).print_report()
+
