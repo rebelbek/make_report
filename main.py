@@ -1,8 +1,6 @@
 import argparse
 import os.path
 
-log_levels: tuple = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
-
 
 def get_args() -> argparse.Namespace:
     """Функция получает аргументы из командной строки"""
@@ -23,19 +21,19 @@ class ReportMaker:
     """
     Класс формирует и печатает отчет из лог-файлов.
     Принимает аргументы:
-        Обязательные: paths, levels
-        Не обязательные: report_name, module_name
+        Обязательные: paths
+        Не обязательные: report_name, log_levels, module_name
     """
 
     def __init__(self,
                  paths: list[str],
-                 levels: tuple[str],
                  report_name: str = None,
+                 log_levels: tuple[str] = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'),
                  module_name: str = 'django.request'
                  ):
         self.paths: list[str] = paths
         self.report_name: str = report_name
-        self.log_levels: tuple[str] = levels
+        self.log_levels: tuple[str] = log_levels
         self.module_name: str = module_name
 
     def __str__(self):
@@ -54,16 +52,19 @@ class ReportMaker:
                 raise TypeError(f'Неверный формат файла - {path}, должен быть ".log"')
         self._paths = value
 
-    @staticmethod
-    def filter_request_line(line: str, levels: tuple) -> list[str]:
-        """Получает необходимые значения из одной записи для request"""
+    def filter_line(self, line: str) -> list[str]:
+        """Получает необходимые значения из одной записи"""
         result: list[str] = []
         for item in line.split():
-            if item in levels:
-                result.append(item)
-            if item.startswith('/'):
-                result.append(item)
-                continue
+            if self.module_name == 'django.request':
+                if item in self.log_levels:
+                    result.append(item)
+                if item.startswith('/'):
+                    result.append(item)
+                    continue
+            else:
+                #в случае доработки для других модулей
+                pass
         return result
 
     def filter_logs(self) -> list[list[str]]:
@@ -73,11 +74,7 @@ class ReportMaker:
             with open(f'{path}', 'r') as f:
                 for line in f.readlines():
                     if self.module_name in line:
-                        if self.module_name == 'django.request':
-                            result.append(self.filter_request_line(line, self.log_levels))
-                        else:
-                            # в случае добавления метода для других модулей
-                            pass
+                        result.append(self.filter_line(line))
         return result
 
     def make_dict(self) -> tuple[dict[str, dict[str, int]], dict[str, int], int]:
@@ -103,7 +100,7 @@ class ReportMaker:
         """Печатает отчет"""
         log_dict, level_count, request_count = self.make_dict()
         report_name = f'{self.report_name.upper():<25s}' if self.report_name else f'{" ":<25s}'
-        title = (f'{level:<10s}' for level in self.log_levels)
+        title = (f'{level:<8s}' for level in self.log_levels)
         head = f'Total requests: {str(request_count)}\n\n{report_name} {' '.join(title)}'
         print(head)
 
@@ -111,18 +108,18 @@ class ReportMaker:
             print(f'{key:<25s}', end=' ')
             for level in self.log_levels:
                 if level in value.keys():
-                    print(f'{str(value[level]):<10s}', end=' ')
+                    print(f'{str(value[level]):<8s}', end=' ')
                 else:
-                    print(f'{'0':<10s}', end=' ')
+                    print(f'{'0':<8s}', end=' ')
             print()
 
         print(f'{" ":<25s}', end=' ')
         for value in level_count.values():
-            print(f'{str(value):<10s}', end=' ')
-        print()
+            print(f'{str(value):<8s}', end=' ')
+        else:
+            print()
 
 
 if __name__ == '__main__':
     arguments = get_args()
-    ReportMaker(arguments.paths, log_levels, arguments.report).print_report()
-
+    ReportMaker(arguments.paths, arguments.report).print_report()
