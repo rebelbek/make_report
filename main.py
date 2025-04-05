@@ -118,6 +118,7 @@ class RequestReportMaker:
         print(f'{" ":<25s}', end=' ')
         for value in level_count.values():
             print(f'{str(value):<10s}', end=' ')
+        print()
 
 
 if __name__ == '__main__':
