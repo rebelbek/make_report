@@ -26,12 +26,12 @@ class ReportMaker:
     """
 
     def __init__(self,
-                 paths: list[str, ...],
+                 paths: list[str],
                  report_name: str = None,
                  log_levels: tuple[str, ...] = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'),
                  module_name: str = 'django.request'
                  ):
-        self.paths: list[str, ...] = paths
+        self.paths: list[str] = paths
         self.report_name: str = report_name
         self.log_levels: tuple[str, ...] = log_levels
         self.module_name: str = module_name
@@ -62,6 +62,9 @@ class ReportMaker:
     @log_levels.setter
     def log_levels(self, value: tuple[str, ...]) -> None:
         levels_sample = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
+        if not value:
+            raise ValueError(f'В параметр log_levels нужно передать минимум 1 значение из '
+                             f'[{", ".join(levels_sample)}]')
         if value == levels_sample:
             self._log_levels = value
         else:
