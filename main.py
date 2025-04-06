@@ -20,9 +20,14 @@ def get_args() -> argparse.Namespace:
 class ReportMaker:
     """
     Класс формирует и печатает отчет из лог-файлов.
+
     Принимает аргументы:
-        Обязательные: paths.
-        Не обязательные: report_name, log_levels, module_name.
+        Обязательные:
+                    paths - пути к файлам.
+        Не обязательные:
+                    report_name - название отчета,
+                    log_levels - уровень логов,
+                    module_name - имя модуля для отчета.
     """
 
     def __init__(self,
@@ -32,9 +37,9 @@ class ReportMaker:
                  module_name: str = 'django.request'
                  ):
         self.paths: list[str] = paths
-        self.report_name: str = report_name
+        self.report_name: str = str(report_name) if report_name else ' '
         self.log_levels: tuple[str, ...] = log_levels
-        self.module_name: str = module_name
+        self.module_name: str = str(module_name)
         self.key_width: int = 25
         self.value_width: int = 8
 
@@ -58,7 +63,7 @@ class ReportMaker:
     @property
     def log_levels(self):
         return self._log_levels
-    
+
     @log_levels.setter
     def log_levels(self, value: tuple[str, ...]) -> None:
         levels_sample = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
@@ -123,9 +128,8 @@ class ReportMaker:
     def print_report(self):
         """Печатает отчет."""
         log_dict, level_count, request_count = self.make_dict()
-        report_name: str = f'{self.report_name.upper():<{self.key_width}s}' \
-            if self.report_name else f'{" ":<{self.key_width}s}'
-        title: str = (f'{level.upper():<{self.value_width}s}' for level in self.log_levels)
+        report_name: str = f'{self.report_name.upper():<{self.key_width}s}'
+        title: tuple = tuple(f'{level.upper():<{self.value_width}s}' for level in self.log_levels)
         head: str = f'Total requests: {str(request_count)}\n\n{report_name} {' '.join(title)}'
         print(head)
 
