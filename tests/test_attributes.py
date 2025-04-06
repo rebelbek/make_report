@@ -1,10 +1,28 @@
 import pytest
 from main import ReportMaker as RP
 
-paths = ['test_logs/test_app1.log', 'test_logs/test_app2.log', 'test_logs/test_app3.log']
+paths = ['tests/test_logs/test_app1.log', 'tests/test_logs/test_app2.log', 'tests/test_logs/test_app3.log']
 
 
-class TestLogLevels:
+class TestReportMakerAttr:
+    @pytest.mark.parametrize('test_paths, result',
+                             [
+                                 (RP(paths).paths,
+                                  ['tests/test_logs/test_app1.log', 'tests/test_logs/test_app2.log', 'tests/test_logs/test_app3.log']),
+                                 (RP([paths[1]]).paths, ['tests/test_logs/test_app2.log']),
+                             ])
+    def test_paths(self, test_paths, result):
+        assert test_paths == result
+
+    @pytest.mark.parametrize('expected_exception, value',
+                             [
+                                 (FileNotFoundError, ['some_path']),
+                                 (TypeError, ['tests/test_logs/test.txt'])
+                             ])
+    def test_paths_errors(self, expected_exception, value):
+        with pytest.raises(expected_exception):
+            RP(value)
+
     @pytest.mark.parametrize('log_levels, result',
                              [
                                  (RP(paths).log_levels, ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')),
@@ -15,14 +33,15 @@ class TestLogLevels:
     def test_log_levels(self, log_levels, result):
         assert log_levels == result
 
-    @pytest.mark.parametrize('test_paths, result',
+    @pytest.mark.parametrize('expected_exception, value',
                              [
-                                 (RP(paths).paths,
-                                  ['test_logs/test_app1.log', 'test_logs/test_app2.log', 'test_logs/test_app3.log']),
-                                 (RP([paths[1]]).paths, ['test_logs/test_app2.log']),
+                                 (ValueError, ''),
+                                 (ValueError, ('something', 'info')),
+                                 (TypeError, (1, 'CRITICAL'))
                              ])
-    def test_paths(self, test_paths, result):
-        assert test_paths == result
+    def test_log_levels_errors(self, expected_exception, value):
+        with pytest.raises(expected_exception):
+            RP(paths, log_levels=value)
 
     @pytest.mark.parametrize('name, result',
                              [
