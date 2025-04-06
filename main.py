@@ -58,18 +58,21 @@ class ReportMaker:
     @property
     def log_levels(self):
         return self._log_levels
-
+    
     @log_levels.setter
     def log_levels(self, value: tuple[str, ...]) -> None:
         levels_sample = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
-        for level in value:
-            if not isinstance(level, str):
-                raise TypeError(f'Неверное значение уровня логирования - {level}, '
-                                f'должно быть строкой.')
-            if level.upper() not in levels_sample:
-                raise ValueError(f'Неверное значения уровня логирования - {level}, '
-                                 f'должно быть в [{", ".join(levels_sample)}].')
-        self._log_levels = tuple((l for l in levels_sample if l in [i.upper() for i in value]))
+        if value == levels_sample:
+            self._log_levels = value
+        else:
+            for level in value:
+                if not isinstance(level, str):
+                    raise TypeError(f'Неверное значение уровня логирования - {level}, '
+                                    f'должно быть строкой.')
+                if level.upper() not in levels_sample:
+                    raise ValueError(f'Неверное значения уровня логирования - {level}, '
+                                     f'должно быть в [{", ".join(levels_sample)}].')
+            self._log_levels = tuple((l for l in levels_sample if l in [i.upper() for i in value]))
 
     def filter_line(self, line: str) -> list[str]:
         """Получает необходимые значения из одной записи."""

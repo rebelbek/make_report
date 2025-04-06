@@ -9,3 +9,6 @@ python3 main.py logs/app1.log logs/app2.log logs/app3.log --report handlers
 
 Принимает минимум 1 позиционный аргумент пути к файлу и опционально 
 аргумент для названия отчета после флага **--report**.
+
+Чтобы добавить новый отчет, нужно изменить аттрибут **module_name** и 
+метод **filter_line** в классе **ReportMaker**.
