@@ -114,8 +114,7 @@ class ReportMaker:
         level_count: dict[str, int] = {level: 0 for level in self.log_levels}
         request_count: int = 0
         for item in self.filter_logs():
-            key = item[1]
-            level = item[0]
+            key, level = item[1], item[0]
             level_count[level] += 1
             request_count += 1
             if key not in log_dict:
@@ -145,5 +144,4 @@ class ReportMaker:
 
 if __name__ == '__main__':
     arguments = get_args()
-    # print(ReportMaker(arguments.paths, arguments.report).make_dict()[0])
     ReportMaker(arguments.paths, arguments.report).print_report()

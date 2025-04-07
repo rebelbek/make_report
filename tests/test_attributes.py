@@ -1,14 +1,17 @@
 import pytest
 from main import ReportMaker as RM
 
-paths = ['tests/test_logs/test_app1.log', 'tests/test_logs/test_app2.log', 'tests/test_logs/test_app3.log']
+paths = ['tests/test_logs/test_app1.log',
+         'tests/test_logs/test_app2.log',
+         'tests/test_logs/test_app3.log']
 
 
-class TestReportMakerAttr:
+class TestRMAttr:
     @pytest.mark.parametrize('test_paths, result',
                              [
                                  (RM(paths).paths,
-                                  ['tests/test_logs/test_app1.log', 'tests/test_logs/test_app2.log', 'tests/test_logs/test_app3.log']),
+                                  ['tests/test_logs/test_app1.log', 'tests/test_logs/test_app2.log',
+                                   'tests/test_logs/test_app3.log']),
                                  (RM([paths[1]]).paths, ['tests/test_logs/test_app2.log']),
                              ])
     def test_paths(self, test_paths, result):
