@@ -7,15 +7,15 @@ paths = ['tests/test_logs/test_app1.log',
 
 
 class TestRMAttr:
-    @pytest.mark.parametrize('test_paths, result',
+    @pytest.mark.parametrize('expected_value, result',
                              [
                                  (RM(paths).paths,
                                   ['tests/test_logs/test_app1.log', 'tests/test_logs/test_app2.log',
                                    'tests/test_logs/test_app3.log']),
                                  (RM([paths[1]]).paths, ['tests/test_logs/test_app2.log']),
                              ])
-    def test_paths(self, test_paths, result):
-        assert test_paths == result
+    def test_paths(self, expected_value, result):
+        assert expected_value == result
 
     @pytest.mark.parametrize('expected_exception, value',
                              [
@@ -27,15 +27,15 @@ class TestRMAttr:
         with pytest.raises(expected_exception):
             RM(value)
 
-    @pytest.mark.parametrize('log_levels, result',
+    @pytest.mark.parametrize('expected_value, result',
                              [
                                  (RM(paths).log_levels, ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')),
                                  (RM(paths, log_levels=('ErrOr', 'debug')).log_levels, ('DEBUG', 'ERROR')),
                                  (RM(paths, log_levels=('ErROR', 'CRITICAL', 'CRiTICAL', 'ERROR')).log_levels,
                                   ('ERROR', 'CRITICAL')),
                              ])
-    def test_log_levels(self, log_levels, result):
-        assert log_levels == result
+    def test_log_levels(self, expected_value, result):
+        assert expected_value == result
 
     @pytest.mark.parametrize('expected_exception, value',
                              [
@@ -47,20 +47,20 @@ class TestRMAttr:
         with pytest.raises(expected_exception):
             RM(paths, log_levels=value)
 
-    @pytest.mark.parametrize('name, result',
+    @pytest.mark.parametrize('expected_value, result',
                              [
                                  (RM(paths).report_name, ' '),
                                  (RM(paths, report_name='handlers').report_name, 'handlers'),
                                  (RM(paths, report_name=1).report_name, '1'),
                              ])
-    def test_report_name(self, name, result):
-        assert name == result
+    def test_report_name(self, expected_value, result):
+        assert expected_value == result
 
-    @pytest.mark.parametrize('name, result',
+    @pytest.mark.parametrize('expected_value, result',
                              [
                                  (RM(paths).module_name, 'django.request'),
                                  (RM(paths, module_name='fiction').module_name, 'fiction'),
                                  (RM(paths, module_name=1).module_name, '1'),
                              ])
-    def test_module_name(self, name, result):
-        assert name == result
+    def test_module_name(self, expected_value, result):
+        assert expected_value == result

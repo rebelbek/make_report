@@ -145,3 +145,5 @@ class ReportMaker:
 if __name__ == '__main__':
     arguments = get_args()
     ReportMaker(arguments.paths, arguments.report).print_report()
+
+
