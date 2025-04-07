@@ -7,6 +7,7 @@ paths = ['tests/test_logs/test_app1.log',
 
 
 class TestRMAttr:
+    """Класс тестирует атрибуты класса ReportMaker в методе __init__"""
     @pytest.mark.parametrize('expected_value, result',
                              [
                                  (RM(paths).paths,
@@ -15,6 +16,7 @@ class TestRMAttr:
                                  (RM([paths[1]]).paths, ['tests/test_logs/test_app2.log']),
                              ])
     def test_paths(self, expected_value, result):
+        """Тестирует атрибут paths класса ReportMaker"""
         assert expected_value == result
 
     @pytest.mark.parametrize('expected_exception, value',
@@ -24,6 +26,7 @@ class TestRMAttr:
                                  (FileNotFoundError, ['some_path.log']),
                              ])
     def test_paths_exceptions(self, expected_exception, value):
+        """Тестирует атрибут paths класса ReportMaker на исключения"""
         with pytest.raises(expected_exception):
             RM(value)
 
@@ -35,6 +38,7 @@ class TestRMAttr:
                                   ('ERROR', 'CRITICAL')),
                              ])
     def test_log_levels(self, expected_value, result):
+        """Тестирует атрибут log_levels класса ReportMaker"""
         assert expected_value == result
 
     @pytest.mark.parametrize('expected_exception, value',
@@ -44,6 +48,7 @@ class TestRMAttr:
                                  (TypeError, (1, 'CRITICAL'))
                              ])
     def test_log_levels_exceptions(self, expected_exception, value):
+        """Тестирует атрибут log_levels класса ReportMaker на исключения"""
         with pytest.raises(expected_exception):
             RM(paths, log_levels=value)
 
@@ -54,6 +59,7 @@ class TestRMAttr:
                                  (RM(paths, report_name=1).report_name, '1'),
                              ])
     def test_report_name(self, expected_value, result):
+        """Тестирует атрибут report_name класса ReportMaker"""
         assert expected_value == result
 
     @pytest.mark.parametrize('expected_value, result',
@@ -63,4 +69,5 @@ class TestRMAttr:
                                  (RM(paths, module_name=1).module_name, '1'),
                              ])
     def test_module_name(self, expected_value, result):
+        """Тестирует атрибут module_name класса ReportMaker"""
         assert expected_value == result

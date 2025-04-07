@@ -10,6 +10,7 @@ lines = ["2025-03-28 12:21:51,000 INFO django.request: GET /admin/dashboard/ 200
 
 
 class TestRMFilterLine:
+    """Класс тестирует метод filter_line класса ReportMaker"""
     @pytest.mark.parametrize('expected_value, result',
                              [
                                  (all([isinstance(item, str) for item in RM(paths).filter_line(lines[0])]), True),
@@ -19,8 +20,10 @@ class TestRMFilterLine:
                                  (RM(paths).filter_line(lines[0])[1], '/admin/dashboard/'),
                              ])
     def test_filter_line(self, expected_value, result):
+        """Тестирует метод класса filter_line ReportMaker"""
         assert expected_value == result
 
     def test_filter_line_exceptions(self):
+        """Тестирует метод filter_line класса ReportMaker на исключения"""
         with pytest.raises(ValueError):
             RM(paths).filter_line(lines[2])

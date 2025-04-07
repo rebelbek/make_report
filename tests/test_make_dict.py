@@ -8,12 +8,14 @@ log_levels = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
 
 
 class TestRMMakeDict:
+    """Класс тестирует метод make_dict класса ReportMaker"""
     @pytest.mark.parametrize('expected_value, result',
                              [
                                  (len(RM(paths).make_dict()), 3),
                                  (isinstance(RM(paths).make_dict(), tuple), True),
                              ])
     def test_make_dict(self, expected_value, result):
+        """Тестирует метод make_dict класса ReportMaker"""
         assert expected_value == result
 
     @pytest.mark.parametrize('expected_value, result',
@@ -29,6 +31,7 @@ class TestRMMakeDict:
                                  (len(RM(paths).make_dict()[0]), 12)
                              ])
     def test_make_dict_log_dict(self, expected_value, result):
+        """Тестирует переменную log_dict метода make_dict класса ReportMaker"""
         assert expected_value == result
 
     @pytest.mark.parametrize('expected_value, result',
@@ -42,6 +45,7 @@ class TestRMMakeDict:
                                  ([value for value in RM([paths[0]]).make_dict()[1].values()], [0, 48, 0, 12, 0]),
                              ])
     def test_make_dict_level_count(self, expected_value, result):
+        """Тестирует переменную level_count метода make_dict класса ReportMaker"""
         assert expected_value == result
 
     @pytest.mark.parametrize('expected_value, result',
@@ -51,4 +55,5 @@ class TestRMMakeDict:
                                  (RM([paths[0]]).make_dict()[2], 60)
                              ])
     def test_make_dict_request_count(self, expected_value, result):
+        """Тестирует переменную request_count метода make_dict класса ReportMaker"""
         assert expected_value == result

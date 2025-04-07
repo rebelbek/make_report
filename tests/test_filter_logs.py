@@ -8,6 +8,7 @@ log_levels = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
 
 
 class TestRMFilterLogs:
+    """Класс тестирует метод filter_logs класса ReportMaker"""
     @pytest.mark.parametrize('expected_value, result',
                              [
                                  (all([isinstance(item, list) for item in RM(paths).filter_logs()]), True),
@@ -22,4 +23,5 @@ class TestRMFilterLogs:
                                  (all([uri.startswith('/') for uri in [item[1] for item in RM(paths).filter_logs()]]), True),
                              ])
     def test_filter_logs(self, expected_value, result):
+        """Тестирует метод filter_logs класса ReportMaker"""
         assert expected_value == result

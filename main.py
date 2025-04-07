@@ -44,8 +44,8 @@ class ReportMaker:
         self.value_width: int = 8  # Заданная ширина для печати колонок уровня логирования для метода print_report
 
     def __str__(self):
-        return (f'Report for logs in {self.module_name}, paths to file: '
-                f'{', '.join([path for path in self.paths])}.')
+        return (f'Log report for {self.module_name}, log files: '
+                f'{', '.join([file.split('/')[-1] for file in self.paths])}.')
 
     @property
     def paths(self) -> list[str, ...]:
@@ -145,5 +145,3 @@ class ReportMaker:
 if __name__ == '__main__':
     arguments = get_args()
     ReportMaker(arguments.paths, arguments.report).print_report()
-
-
