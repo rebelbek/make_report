@@ -129,15 +129,15 @@ class ReportMaker:
         """Печатает отчет."""
         log_dict, level_count, request_count = self.make_dict()
 
-        report_name: str = f'{self.report_name.upper():<{self.key_width}}'
-        title: tuple = tuple(f'{level.upper():<{self.value_width}}' for level in self.log_levels)
+        report_name: str = f'{self.report_name.upper():<{self.key_width}s}'
+        title: tuple = tuple(f'{level.upper():<{self.value_width}s}' for level in self.log_levels)
 
         head: str = f'Total requests: {str(request_count)}\n\n{report_name}{' '.join(title)}'
-        body: str = '\n'.join([f"{key:<{self.key_width}}" +
-                               ' '.join(f"{str(value[level]):<{self.value_width}}" for level in self.log_levels)
+        body: str = '\n'.join([f"{key:<{self.key_width}s}" +
+                               ' '.join(f"{str(value[level]):<{self.value_width}s}" for level in self.log_levels)
                                for key, value in sorted(log_dict.items(), key=lambda x: x[0])])
-        end: str = f'{" ":<{self.key_width}}' + ' '.join(
-            f"{str(value):<{self.value_width}}" for value in level_count.values())
+        end: str = f'{" ":<{self.key_width}s}' + ' '.join(
+            f"{str(value):<{self.value_width}s}" for value in level_count.values())
 
         print(head, body, end, sep='\n')
 
