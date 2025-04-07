@@ -4,7 +4,7 @@
 
 Пример формирование отчёта:
 ```
-python3 main.py logs/app1.log logs/app2.log logs/app3.log --report handlers
+python3 main.py example_logs/app1.log example_logs/app2.log example_logs/app3.log --report handlers
 ```
 
 Принимает минимум 1 позиционный аргумент пути к файлу и опционально 

@@ -1,5 +1,5 @@
 import pytest
-from main import ReportMaker as RP
+from main import ReportMaker as RM
 
 paths = ['tests/test_logs/test_app1.log', 'tests/test_logs/test_app2.log', 'tests/test_logs/test_app3.log']
 
@@ -7,27 +7,28 @@ paths = ['tests/test_logs/test_app1.log', 'tests/test_logs/test_app2.log', 'test
 class TestReportMakerAttr:
     @pytest.mark.parametrize('test_paths, result',
                              [
-                                 (RP(paths).paths,
+                                 (RM(paths).paths,
                                   ['tests/test_logs/test_app1.log', 'tests/test_logs/test_app2.log', 'tests/test_logs/test_app3.log']),
-                                 (RP([paths[1]]).paths, ['tests/test_logs/test_app2.log']),
+                                 (RM([paths[1]]).paths, ['tests/test_logs/test_app2.log']),
                              ])
     def test_paths(self, test_paths, result):
         assert test_paths == result
 
     @pytest.mark.parametrize('expected_exception, value',
                              [
-                                 (FileNotFoundError, ['some_path']),
-                                 (TypeError, ['tests/test_logs/test.txt'])
+                                 (TypeError, 'tests/test_logs/test_app1.log'),
+                                 (TypeError, ['tests/test_logs/test.txt']),
+                                 (FileNotFoundError, ['some_path.log']),
                              ])
-    def test_paths_errors(self, expected_exception, value):
+    def test_paths_exceptions(self, expected_exception, value):
         with pytest.raises(expected_exception):
-            RP(value)
+            RM(value)
 
     @pytest.mark.parametrize('log_levels, result',
                              [
-                                 (RP(paths).log_levels, ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')),
-                                 (RP(paths, log_levels=('ErrOr', 'debug')).log_levels, ('DEBUG', 'ERROR')),
-                                 (RP(paths, log_levels=('ErROR', 'CRITICAL', 'CRiTICAL', 'ERROR')).log_levels,
+                                 (RM(paths).log_levels, ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')),
+                                 (RM(paths, log_levels=('ErrOr', 'debug')).log_levels, ('DEBUG', 'ERROR')),
+                                 (RM(paths, log_levels=('ErROR', 'CRITICAL', 'CRiTICAL', 'ERROR')).log_levels,
                                   ('ERROR', 'CRITICAL')),
                              ])
     def test_log_levels(self, log_levels, result):
@@ -39,24 +40,24 @@ class TestReportMakerAttr:
                                  (ValueError, ('something', 'info')),
                                  (TypeError, (1, 'CRITICAL'))
                              ])
-    def test_log_levels_errors(self, expected_exception, value):
+    def test_log_levels_exceptions(self, expected_exception, value):
         with pytest.raises(expected_exception):
-            RP(paths, log_levels=value)
+            RM(paths, log_levels=value)
 
     @pytest.mark.parametrize('name, result',
                              [
-                                 (RP(paths).report_name, ' '),
-                                 (RP(paths, report_name='handlers').report_name, 'handlers'),
-                                 (RP(paths, report_name=1).report_name, '1'),
+                                 (RM(paths).report_name, ' '),
+                                 (RM(paths, report_name='handlers').report_name, 'handlers'),
+                                 (RM(paths, report_name=1).report_name, '1'),
                              ])
     def test_report_name(self, name, result):
         assert name == result
 
     @pytest.mark.parametrize('name, result',
                              [
-                                 (RP(paths).module_name, 'django.request'),
-                                 (RP(paths, module_name='fiction').module_name, 'fiction'),
-                                 (RP(paths, module_name=1).module_name, '1'),
+                                 (RM(paths).module_name, 'django.request'),
+                                 (RM(paths, module_name='fiction').module_name, 'fiction'),
+                                 (RM(paths, module_name=1).module_name, '1'),
                              ])
     def test_module_name(self, name, result):
         assert name == result
