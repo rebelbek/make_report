@@ -25,3 +25,8 @@ class TestRMFilterLogs:
     def test_filter_logs(self, expected_value, result):
         """Тестирует метод filter_logs класса ReportMaker"""
         assert expected_value == result
+
+    def test_filter_logs_exceptions(self):
+        """Тестирует метод filter_logs класса ReportMaker на исключения"""
+        with pytest.raises(ValueError):
+            RM(paths, module_name='django.security').filter_logs()
