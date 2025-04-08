@@ -85,7 +85,7 @@ class ReportMaker:
             self._log_levels = tuple((l for l in levels_sample if l in [i.upper() for i in value]))
 
     def filter_request_line(self, line: str) -> list[str]:
-        """Получает необходимые значения из одной записи."""
+        """Получает необходимые значения из одной записи для django.request."""
         result: list[str] = []
         for item in line.split():
             if item in self.log_levels:
@@ -100,12 +100,11 @@ class ReportMaker:
         for path in self.paths:
             with open(f'{path}', 'r') as f:
                 for line in f.readlines():
-                    if self.module_name in line:
-                        if 'django.request' in line:
-                            result.append(self.filter_request_line(line))
-                        else:
-                            # в случае доработки для других модулей
-                            raise ValueError(f'Не поддерживается работа с модулем {self.module_name}')
+                    if 'django.request' in line:
+                        result.append(self.filter_request_line(line))
+                    # в случае доработки для других модулей:
+                    # else:
+                    #     pass
         return result
 
     def make_dict(self) -> tuple[dict[str, dict[str, int]], dict[str, int], int]:
