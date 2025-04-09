@@ -100,7 +100,7 @@ class ReportMaker:
 
     def make_dict(self) -> tuple[dict[str, dict[str, int]], dict[str, int], int]:
         """Получает все записи логов из переданных файлов и
-        создает словарь из отфильтрованных логов, подсчитывает количество запросов."""
+        создает словарь из отфильтрованных строк, подсчитывает количество запросов."""
         log_dict: dict[str, dict[str, int]] = {}
         level_count: dict[str, int] = {level: 0 for level in self.log_levels}
         request_count: int = 0
@@ -110,13 +110,13 @@ class ReportMaker:
                     if 'django.request' in line:
                         level, key = self.filter_request_line(line)
                         level_count[level] += 1
+                        request_count += 1
                         if key not in log_dict:
                             log_dict[key] = {level: 0 for level in self.log_levels}
                             log_dict[key][level] += 1
                         else:
                             log_dict[key][level] += 1
-                else:
-                    request_count += 1
+
                     # в случае доработки для других модулей:
                     # else:
                     #     pass
@@ -139,6 +139,7 @@ class ReportMaker:
             f"{str(value):<{self.value_width}s}" for value in level_count.values())
 
         print(head, body, end, sep='\n')
+        
         end_time = time()
         if self.show_execute_time:
             print(f"\nВремя выполнения: {end_time - start_time}")
