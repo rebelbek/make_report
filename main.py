@@ -36,13 +36,13 @@ class ReportMaker:
                  report_name: str = None,
                  log_levels: tuple[str, ...] = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'),
                  module_name: str = 'django.request',
-                 show_execute_time = False
+                 show_execution_time = False
                  ):
         self.paths: list[str] = paths
         self.report_name: str = str(report_name) if report_name else ' '
         self.log_levels: tuple[str, ...] = log_levels
         self.module_name: str = str(module_name)
-        self.show_execute_time: bool = show_execute_time
+        self.show_execution_time: bool = show_execution_time
         self.key_width: int = 25  # Ширина печати 1 колонки для метода print_report.
         self.value_width: int = 8  # Ширина печати колонок уровня логирования для метода print_report.
 
@@ -129,19 +129,19 @@ class ReportMaker:
         log_dict, level_count, request_count = self.make_dict()
 
         report_name: str = f'{self.report_name.upper():<{self.key_width}s}'
-        title: tuple = tuple(f'{level.upper():<{self.value_width}s}' for level in self.log_levels)
+        log_levels: tuple = tuple(f'{level.upper():<{self.value_width}s}' for level in self.log_levels)
 
-        head: str = f'Total requests: {str(request_count)}\n\n{report_name}{' '.join(title)}'
+        head: str = f'Total requests: {str(request_count)}\n\n{report_name}{' '.join(log_levels)}'
         body: str = '\n'.join([f"{key:<{self.key_width}s}" +
                                ' '.join(f"{str(value[level]):<{self.value_width}s}" for level in self.log_levels)
                                for key, value in sorted(log_dict.items(), key=lambda x: x[0])])
-        end: str = f'{" ":<{self.key_width}s}' + ' '.join(
+        tail: str = f'{" ":<{self.key_width}s}' + ' '.join(
             f"{str(value):<{self.value_width}s}" for value in level_count.values())
 
-        print(head, body, end, sep='\n')
-        
+        print(head, body, tail, sep='\n')
+
         end_time = time()
-        if self.show_execute_time:
+        if self.show_execution_time:
             print(f"\nВремя выполнения: {end_time - start_time}")
 
 
