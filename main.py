@@ -141,7 +141,7 @@ class ReportMaker:
         print(head, body, end, sep='\n')
         end_time = time()
         if self.show_execute_time:
-            print(end_time - start_time)
+            print(f"\nВремя выполнения: {end_time - start_time}")
 
 
 if __name__ == '__main__':
