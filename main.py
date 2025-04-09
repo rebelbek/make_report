@@ -2,6 +2,7 @@ import argparse
 import os.path
 from time import time
 
+
 def get_args() -> argparse.Namespace:
     """Функция получает аргументы из командной строки."""
     parser = argparse.ArgumentParser('Формирует отчет из переданных логов '
@@ -36,7 +37,7 @@ class ReportMaker:
                  report_name: str = None,
                  log_levels: tuple[str, ...] = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'),
                  module_name: str = 'django.request',
-                 show_execution_time = False
+                 show_execution_time=False
                  ):
         self.paths: list[str] = paths
         self.report_name: str = str(report_name) if report_name else ' '
@@ -45,7 +46,6 @@ class ReportMaker:
         self.show_execution_time: bool = show_execution_time
         self.key_width: int = 25  # Ширина печати 1 колонки для метода print_report.
         self.value_width: int = 8  # Ширина печати колонок уровня логирования для метода print_report.
-
 
     def __str__(self):
         return (f'Log-report for {self.module_name}, log-files: '
@@ -107,8 +107,10 @@ class ReportMaker:
         for path in self.paths:
             with open(f'{path}', 'r') as f:
                 for line in f.readlines():
-                    if 'django.request' in line:
-                        level, key = self.filter_request_line(line)
+                    if self.module_name in line:
+                        if 'django.request' in line:
+                            level, key = self.filter_request_line(line)
+                        # else: в случае доработки для других модулей.
                         level_count[level] += 1
                         request_count += 1
                         if key not in log_dict:
@@ -117,11 +119,7 @@ class ReportMaker:
                         else:
                             log_dict[key][level] += 1
 
-                    # в случае доработки для других модулей:
-                    # else:
-                    #     pass
         return log_dict, level_count, request_count
-
 
     def print_report(self):
         """Печатает отчет."""
