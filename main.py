@@ -23,11 +23,11 @@ class ReportMaker:
 
     Принимает аргументы:
         Обязательные:
-                    paths - пути к файлам.
+                    paths - список путей к файлам.
         Не обязательные:
                     report_name - название отчета,
                     log_levels - уровень логов,
-                    module_name - имя модуля для отчета.
+                    module_name - название модуля для отчета.
     """
 
     def __init__(self,
@@ -40,11 +40,11 @@ class ReportMaker:
         self.report_name: str = str(report_name) if report_name else ' '
         self.log_levels: tuple[str, ...] = log_levels
         self.module_name: str = str(module_name)
-        self.key_width: int = 25  # Заданная ширина для печати 1 колонки для метода print_report
-        self.value_width: int = 8  # Заданная ширина для печати колонок уровня логирования для метода print_report
+        self.key_width: int = 25  # Ширина печати 1 колонки для метода print_report.
+        self.value_width: int = 8  # Ширина печати колонок уровня логирования для метода print_report.
 
     def __str__(self):
-        return (f'Log report for {self.module_name}, log files: '
+        return (f'Log-report for {self.module_name}, log-files: '
                 f'{', '.join([file.split('/')[-1] for file in self.paths])}.')
 
     @property
@@ -54,7 +54,7 @@ class ReportMaker:
     @paths.setter
     def paths(self, value: list[str, ...]) -> None:
         if not isinstance(value, list):
-            raise TypeError(f'Значение {value} должно быть списком')
+            raise TypeError(f'Значение {value} должно быть списком из путей к файлам')
         for path in value:
             if not path.endswith('.log'):
                 raise TypeError(f'Неверный формат файла - {path}, должен быть ".log".')
@@ -77,10 +77,10 @@ class ReportMaker:
         else:
             for level in value:
                 if not isinstance(level, str):
-                    raise TypeError(f'Неверное значение уровня логирования - {level}, '
+                    raise TypeError(f'Неверный тип значения уровня логирования - {level}, '
                                     f'должно быть строкой.')
                 if level.upper() not in levels_sample:
-                    raise ValueError(f'Неверное значения уровня логирования - {level}, '
+                    raise ValueError(f'Неверное значение уровня логирования - {level}, '
                                      f'должно быть в [{", ".join(levels_sample)}].')
             self._log_levels = tuple((l for l in levels_sample if l in [i.upper() for i in value]))
 
