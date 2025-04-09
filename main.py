@@ -110,12 +110,13 @@ class ReportMaker:
                     if 'django.request' in line:
                         level, key = self.filter_request_line(line)
                         level_count[level] += 1
-                        request_count += 1
                         if key not in log_dict:
                             log_dict[key] = {level: 0 for level in self.log_levels}
                             log_dict[key][level] += 1
                         else:
                             log_dict[key][level] += 1
+                else:
+                    request_count += 1
                     # в случае доработки для других модулей:
                     # else:
                     #     pass
