@@ -1,6 +1,6 @@
 import argparse
 import os.path
-
+from time import time
 
 def get_args() -> argparse.Namespace:
     """Функция получает аргументы из командной строки."""
@@ -27,21 +27,25 @@ class ReportMaker:
         Не обязательные:
                     report_name - название отчета,
                     log_levels - уровень логов,
-                    module_name - название модуля для отчета.
+                    module_name - название модуля для отчета,
+                    show_execute_time - печать времени выполнения.
     """
 
     def __init__(self,
                  paths: list[str],
                  report_name: str = None,
                  log_levels: tuple[str, ...] = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'),
-                 module_name: str = 'django.request'
+                 module_name: str = 'django.request',
+                 show_execute_time = False
                  ):
         self.paths: list[str] = paths
         self.report_name: str = str(report_name) if report_name else ' '
         self.log_levels: tuple[str, ...] = log_levels
         self.module_name: str = str(module_name)
+        self.show_execute_time: bool = show_execute_time
         self.key_width: int = 25  # Ширина печати 1 колонки для метода print_report.
         self.value_width: int = 8  # Ширина печати колонок уровня логирования для метода print_report.
+
 
     def __str__(self):
         return (f'Log-report for {self.module_name}, log-files: '
@@ -94,38 +98,33 @@ class ReportMaker:
                 result.append(item)
         return result
 
-    def filter_logs(self) -> list[list[str]]:
-        """Получает все записи логов из переданных файлов и фильтрует необходимые данные."""
-        result: list[list[str]] = []
+    def make_dict(self) -> tuple[dict[str, dict[str, int]], dict[str, int], int]:
+        """Получает все записи логов из переданных файлов и
+        создает словарь из отфильтрованных логов, подсчитывает количество запросов."""
+        log_dict: dict[str, dict[str, int]] = {}
+        level_count: dict[str, int] = {level: 0 for level in self.log_levels}
+        request_count: int = 0
         for path in self.paths:
             with open(f'{path}', 'r') as f:
                 for line in f.readlines():
                     if 'django.request' in line:
-                        result.append(self.filter_request_line(line))
+                        level, key = self.filter_request_line(line)
+                        level_count[level] += 1
+                        request_count += 1
+                        if key not in log_dict:
+                            log_dict[key] = {level: 0 for level in self.log_levels}
+                            log_dict[key][level] += 1
+                        else:
+                            log_dict[key][level] += 1
                     # в случае доработки для других модулей:
                     # else:
                     #     pass
-        return result
-
-    def make_dict(self) -> tuple[dict[str, dict[str, int]], dict[str, int], int]:
-        """Создает словарь из отфильтрованных логов и подсчитывает количество запросов."""
-        log_dict: dict[str, dict[str, int]] = {}
-        level_count: dict[str, int] = {level: 0 for level in self.log_levels}
-        request_count: int = 0
-        for item in self.filter_logs():
-            key, level = item[1], item[0]
-            level_count[level] += 1
-            request_count += 1
-            if key not in log_dict:
-                log_dict[key] = {level: 0 for level in self.log_levels}
-                log_dict[key][level] += 1
-            else:
-                log_dict[key][level] += 1
-
         return log_dict, level_count, request_count
+
 
     def print_report(self):
         """Печатает отчет."""
+        start_time = time()
         log_dict, level_count, request_count = self.make_dict()
 
         report_name: str = f'{self.report_name.upper():<{self.key_width}s}'
@@ -139,6 +138,9 @@ class ReportMaker:
             f"{str(value):<{self.value_width}s}" for value in level_count.values())
 
         print(head, body, end, sep='\n')
+        end_time = time()
+        if self.show_execute_time:
+            print(end_time - start_time)
 
 
 if __name__ == '__main__':
