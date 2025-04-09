@@ -37,7 +37,7 @@ class ReportMaker:
                  report_name: str = None,
                  log_levels: tuple[str, ...] = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'),
                  module_name: str = 'django.request',
-                 show_execution_time=False
+                 show_execution_time: bool = False
                  ):
         self.paths: list[str] = paths
         self.report_name: str = str(report_name) if report_name else ' '
@@ -108,9 +108,9 @@ class ReportMaker:
             with open(f'{path}', 'r') as f:
                 for line in f.readlines():
                     if self.module_name in line:
-                        if 'django.request' in line:
+                        if self.module_name == 'django.request':
                             level, key = self.filter_request_line(line)
-                        # else: в случае доработки для других модулей.
+                        # elif self.module_name == 'another.module': на случай доработки для других модулей
                         level_count[level] += 1
                         request_count += 1
                         if key not in log_dict:
