@@ -1,5 +1,6 @@
 import argparse
 import os.path
+from multiprocessing import Process, Manager
 from time import time
 
 
@@ -29,7 +30,8 @@ class ReportMaker:
                     report_name - название отчета,
                     log_levels - уровень логов,
                     module_name - название модуля для отчета,
-                    show_execute_time - печать времени выполнения.
+                    use_multiprocessing - включает мультипроцессинг,
+                    show_execute_time - включает печать времени выполнения.
     """
 
     def __init__(self,
@@ -37,12 +39,14 @@ class ReportMaker:
                  report_name: str = None,
                  log_levels: tuple[str, ...] = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'),
                  module_name: str = 'django.request',
-                 show_execution_time: bool = False
+                 use_multiprocessing: bool = True,
+                 show_execution_time: bool = True
                  ):
         self.paths: list[str] = paths
         self.report_name: str = str(report_name) if report_name else ' '
         self.log_levels: tuple[str, ...] = log_levels
         self.module_name: str = str(module_name)
+        self.use_multiprocessing: bool = use_multiprocessing
         self.show_execution_time: bool = show_execution_time
         self.key_width: int = 25  # Ширина печати 1 колонки для метода print_report.
         self.value_width: int = 8  # Ширина печати колонок уровня логирования для метода print_report.
@@ -98,7 +102,7 @@ class ReportMaker:
                 result.append(item)
         return result
 
-    def make_dict(self) -> tuple[dict[str, dict[str, int]], dict[str, int], int]:
+    def make_dicts(self) -> tuple[dict[str, dict[str, int]], dict[str, int], int]:
         """Получает все записи логов из переданных файлов и
         создает словарь из отфильтрованных строк, подсчитывает количество запросов."""
         log_dict: dict[str, dict[str, int]] = {}
@@ -115,16 +119,57 @@ class ReportMaker:
                         request_count += 1
                         if key not in log_dict:
                             log_dict[key] = {level: 0 for level in self.log_levels}
-                            log_dict[key][level] += 1
-                        else:
-                            log_dict[key][level] += 1
+                        log_dict[key][level] += 1
+
+        return log_dict, level_count, request_count
+
+    def make_one_dict(self, path, return_dict) -> None:
+        """Получает все записи логов из 1 переданного файла и
+        создает словарь из отфильтрованных строк."""
+        log_dict: dict[str, dict[str, int]] = {}
+        with open(f'{path}', 'r') as f:
+            for line in f.readlines():
+                if self.module_name in line:
+                    if 'django.request' in line:
+                        level, key = self.filter_request_line(line)
+                        # elif self.module_name == 'another.module': на случай доработки для других модулей
+                        if key not in log_dict:
+                            log_dict[key] = {level: 0 for level in self.log_levels}
+                        log_dict[key][level] += 1
+
+        return_dict[path] = log_dict
+
+    def multi_make_dicts(self) -> tuple[dict[str, dict[str, int]], dict[str, int], int]:
+        """Объединяет словари из записей логов используя мультипроцессинг, создает словарь
+         из отфильтрованных строк и подсчитывает количество запросов."""
+        log_dict: dict[str, dict[str, int]] = {}
+        level_count: dict[str, int] = {level: 0 for level in self.log_levels}
+        request_count: int = 0
+
+        with Manager() as manager:
+            return_dict = manager.dict()
+            processes = [Process(target=self.make_one_dict, args=(path, return_dict)) for path in self.paths]
+            [process.start() for process in processes]
+            [process.join() for process in processes]
+
+            for item in return_dict.values():
+                for key, value in item.items():
+                    for level, count in value.items():
+                        if not key in log_dict:
+                            log_dict[key] = {level: 0 for level in self.log_levels}
+                        log_dict[key][level] += count
+                        level_count[level] += count
+                        request_count += count
 
         return log_dict, level_count, request_count
 
     def print_report(self):
         """Печатает отчет."""
         start_time = time()
-        log_dict, level_count, request_count = self.make_dict()
+        if self.use_multiprocessing:
+            log_dict, level_count, request_count = self.multi_make_dicts()
+        else:
+            log_dict, level_count, request_count = self.make_dicts()
 
         report_name: str = f'{self.report_name.upper():<{self.key_width}s}'
         log_levels: tuple = tuple(f'{level.upper():<{self.value_width}s}' for level in self.log_levels)
