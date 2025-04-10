@@ -166,10 +166,10 @@ class ReportMaker:
     def print_report(self):
         """Печатает отчет."""
         start_time = time()
-        if self.use_multiprocessing:
-            log_dict, level_count, request_count = self.multi_make_dicts()
-        else:
+        if len(self.paths) == 1 or not self.use_multiprocessing:
             log_dict, level_count, request_count = self.make_dicts()
+        else:
+            log_dict, level_count, request_count = self.multi_make_dicts()
 
         report_name: str = f'{self.report_name.upper():<{self.key_width}s}'
         log_levels: tuple = tuple(f'{level.upper():<{self.value_width}s}' for level in self.log_levels)
