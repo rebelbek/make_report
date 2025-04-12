@@ -23,7 +23,7 @@ class ReportMaker:
     """
     Класс формирует и печатает отчет из лог-файлов.
 
-    Принимает аргументы:
+    Аргументы:
         Обязательные:
                     paths - список путей к файлам.
         Не обязательные:
@@ -31,7 +31,7 @@ class ReportMaker:
                     log_levels - уровень логов,
                     module_name - название модуля для отчета,
                     use_multiprocessing - включает мультипроцессинг,
-                    show_execute_time - включает печать времени выполнения.
+                    show_exec_time - включает печать времени выполнения.
     """
 
     def __init__(self,
@@ -40,14 +40,14 @@ class ReportMaker:
                  log_levels: tuple[str, ...] = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'),
                  module_name: str = 'django.request',
                  use_multiprocessing: bool = True,
-                 show_execution_time: bool = True
+                 show_exec_time: bool = True
                  ):
         self.paths: list[str] = paths
         self.report_name: str = str(report_name) if report_name else ' '
         self.log_levels: tuple[str, ...] = log_levels
         self.module_name: str = str(module_name)
         self.use_multiprocessing: bool = use_multiprocessing
-        self.show_execution_time: bool = show_execution_time
+        self.show_exec_time: bool = show_exec_time
         self.key_width: int = 25  # Ширина печати 1 колонки для метода print_report.
         self.value_width: int = 8  # Ширина печати колонок уровня логирования для метода print_report.
 
@@ -184,7 +184,7 @@ class ReportMaker:
         print(head, body, tail, sep='\n')
 
         end_time = time()
-        if self.show_execution_time:
+        if self.show_exec_time:
             print(f"\nВремя выполнения: {end_time - start_time}")
 
 
